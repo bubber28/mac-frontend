@@ -1,22 +1,22 @@
 export default function Page() {
   return (
-    <div className="min-h-screen bg-slate-100 flex">
+    <div className="min-h-screen bg-slate-100 grid grid-cols-[260px_1fr]">
 
       {/* SIDEBAR */}
-      <div className="w-64 bg-white border-r border-slate-200 p-6 flex-shrink-0">
+      <aside className="bg-white border-r border-slate-200 p-6">
         <h1 className="text-2xl font-bold mb-8">M.A.C</h1>
 
-        <div className="space-y-3 text-slate-600">
-          <p className="font-medium text-slate-900">Dashboard</p>
+        <nav className="space-y-3 text-slate-600">
+          <p className="font-semibold text-slate-900">Dashboard</p>
           <p>Leads</p>
           <p>Conversas</p>
           <p>Estratégia IA</p>
           <p>Configurações</p>
-        </div>
-      </div>
+        </nav>
+      </aside>
 
       {/* CONTEÚDO */}
-      <div className="flex-1 p-10">
+      <main className="p-10">
 
         <h2 className="text-3xl font-bold mb-8">Dashboard operacional</h2>
 
@@ -71,8 +71,7 @@ export default function Page() {
 
         </div>
 
-      </div>
-
+      </main>
     </div>
   );
 }
