@@ -60,10 +60,32 @@ export default function Page() {
 
         <div style={{marginTop:40}}>
 
-          <h2>Resposta do M.A.C</h2>
+         {resposta && (
 
-          <p>{resposta.resposta}</p>
+  <div style={{ marginTop: 40 }}>
 
+    <h2>Resposta do M.A.C</h2>
+
+    <div style={{ 
+      whiteSpace: "pre-wrap", 
+      wordBreak: "break-word",
+      maxWidth: "700px"
+    }}>
+      {resposta.resposta}
+    </div>
+
+    <h3>Intenção detectada</h3>
+    <p>{resposta.analiseMensagem.intencaoDetectada}</p>
+
+    <h3>Perfil DISC</h3>
+    <p>{resposta.analiseMensagem.perfilHipotese}</p>
+
+    <h3>Estratégia</h3>
+    <p>{resposta.analiseMensagem.estrategia}</p>
+
+  </div>
+
+)}
           <h3>Intenção detectada</h3>
           <p>{resposta.analiseMensagem.intencaoDetectada}</p>
 
