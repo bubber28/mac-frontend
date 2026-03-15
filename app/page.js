@@ -9,6 +9,15 @@ export default function Page() {
   const [analise, setAnalise] = useState(null);
   const chatRef = useRef(null);
 
+  useEffect(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo({
+        top: chatRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
+  }, [conversa, loading]);
+
   const enviarMensagem = async () => {
     if (!msg.trim()) return;
 
@@ -114,6 +123,11 @@ export default function Page() {
             onChange={(e) => setMsg(e.target.value)}
             placeholder="Digite a mensagem do cliente..."
             style={styles.input}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                enviarMensagem();
+              }
+            }}
           />
 
           <button onClick={enviarMensagem} style={styles.button}>
@@ -158,7 +172,8 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: 10,
-    overflowY: "auto"
+    overflowY: "auto",
+    scrollBehavior: "smooth"
   },
 
   bubble: {
