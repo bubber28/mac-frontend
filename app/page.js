@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function Page() {
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [conversa, setConversa] = useState([]);
   const [analise, setAnalise] = useState(null);
+  const chatRef = useRef(null);
 
   const enviarMensagem = async () => {
     if (!msg.trim()) return;
@@ -88,7 +89,7 @@ export default function Page() {
       <div style={styles.chatArea}>
         <div style={styles.header}>Simulador de Conversa</div>
 
-        <div style={styles.chat}>
+        <div style={styles.chat} ref={chatRef}>
           {conversa.map((item, index) => (
             <div
               key={index}
