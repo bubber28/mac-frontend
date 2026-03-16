@@ -39,7 +39,7 @@ export default function Page() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          empresa_id: 1,
+          empresa_id: 2,
           nome: "Cliente Teste",
           telefone: "31999999999",
           canal: "whatsapp",
