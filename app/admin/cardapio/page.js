@@ -124,181 +124,326 @@ export default function CardapioAdmin() {
   }
 
   return (
-    <div style={{ padding: 40, fontFamily: "Arial" }}>
-      <h1>Painel de Cardápio</h1>
-
-      <h2>Novo item</h2>
-
+    <div
+      style={{
+        padding: 32,
+        fontFamily: "Arial",
+        background: "#f7f7f7",
+        minHeight: "100vh"
+      }}
+    >
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 2fr 120px 140px 120px",
-          gap: 10,
-          marginBottom: 30
+          maxWidth: 1200,
+          margin: "0 auto"
         }}
       >
-        <input
-          placeholder="Nome"
-          value={novoItem.nome}
-          onChange={(e) =>
-            setNovoItem({ ...novoItem, nome: e.target.value })
-          }
-        />
+        <h1 style={{ marginBottom: 24 }}>Painel de Cardápio</h1>
 
-        <textarea
-          placeholder="Descrição"
-          rows={3}
-          value={novoItem.descricao}
-          onChange={(e) =>
-            setNovoItem({ ...novoItem, descricao: e.target.value })
-          }
-          style={{ resize: "vertical" }}
-        />
-
-        <input
-          placeholder="Preço"
-          type="number"
-          step="0.01"
-          value={novoItem.preco}
-          onChange={(e) =>
-            setNovoItem({ ...novoItem, preco: e.target.value })
-          }
-        />
-
-        <select
-          value={novoItem.categoria}
-          onChange={(e) =>
-            setNovoItem({ ...novoItem, categoria: e.target.value })
-          }
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e5e5e5",
+            borderRadius: 12,
+            padding: 20,
+            marginBottom: 24,
+            boxShadow: "0 2px 6px rgba(0,0,0,0.05)"
+          }}
         >
-          <option value="salgado">Salgado</option>
-          <option value="doce">Doce</option>
-        </select>
+          <h2 style={{ marginTop: 0, marginBottom: 16 }}>Novo item</h2>
 
-        <button onClick={salvarItem}>Salvar</button>
-      </div>
-
-      <h2>Itens cadastrados</h2>
-
-      {itens.map((item) => {
-        const estaEditando = editandoId === item.id;
-
-        return (
           <div
-            key={item.id}
             style={{
-              border: "1px solid #ddd",
-              padding: 15,
+              display: "grid",
+              gridTemplateColumns: "2fr 3fr 140px 160px 120px",
+              gap: 12,
               marginBottom: 12,
-              borderRadius: 8
+              alignItems: "start"
             }}
           >
-            {estaEditando ? (
-              <>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 2fr 120px 140px",
-                    gap: 10,
-                    marginBottom: 10
-                  }}
-                >
-                  <input
-                    value={itemEditando.nome}
-                    onChange={(e) =>
-                      setItemEditando({
-                        ...itemEditando,
-                        nome: e.target.value
-                      })
-                    }
-                    placeholder="Nome"
-                  />
+            <input
+              placeholder="Nome"
+              value={novoItem.nome}
+              onChange={(e) =>
+                setNovoItem({ ...novoItem, nome: e.target.value })
+              }
+              style={{
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                width: "100%"
+              }}
+            />
 
-                  <textarea
-                    rows={3}
-                    value={itemEditando.descricao}
-                    onChange={(e) =>
-                      setItemEditando({
-                        ...itemEditando,
-                        descricao: e.target.value
-                      })
-                    }
-                    placeholder="Descrição"
-                    style={{ resize: "vertical" }}
-                  />
+            <textarea
+              placeholder="Descrição"
+              rows={4}
+              value={novoItem.descricao}
+              onChange={(e) =>
+                setNovoItem({ ...novoItem, descricao: e.target.value })
+              }
+              style={{
+                resize: "vertical",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                width: "100%"
+              }}
+            />
 
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={itemEditando.preco}
-                    onChange={(e) =>
-                      setItemEditando({
-                        ...itemEditando,
-                        preco: e.target.value
-                      })
-                    }
-                    placeholder="Preço"
-                  />
+            <input
+              placeholder="Preço"
+              type="number"
+              step="0.01"
+              value={novoItem.preco}
+              onChange={(e) =>
+                setNovoItem({ ...novoItem, preco: e.target.value })
+              }
+              style={{
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                width: "100%"
+              }}
+            />
 
-                  <select
-                    value={itemEditando.categoria}
-                    onChange={(e) =>
-                      setItemEditando({
-                        ...itemEditando,
-                        categoria: e.target.value
-                      })
-                    }
-                  >
-                    <option value="salgado">Salgado</option>
-                    <option value="doce">Doce</option>
-                  </select>
-                </div>
+            <select
+              value={novoItem.categoria}
+              onChange={(e) =>
+                setNovoItem({ ...novoItem, categoria: e.target.value })
+              }
+              style={{
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                width: "100%"
+              }}
+            >
+              <option value="salgado">Salgado</option>
+              <option value="doce">Doce</option>
+            </select>
 
-                <label style={{ display: "block", marginBottom: 12 }}>
-                  <input
-                    type="checkbox"
-                    checked={itemEditando.ativo}
-                    onChange={(e) =>
-                      setItemEditando({
-                        ...itemEditando,
-                        ativo: e.target.checked
-                      })
-                    }
-                    style={{ marginRight: 8 }}
-                  />
-                  Item disponível
-                </label>
-
-                <div style={{ display: "flex", gap: 10 }}>
-                  <button onClick={() => salvarEdicao(item.id)}>Salvar alterações</button>
-                  <button onClick={cancelarEdicao}>Cancelar</button>
-                </div>
-              </>
-            ) : (
-              <>
-                <strong>{item.nome}</strong>
-                <p style={{ marginTop: 8 }}>{item.descricao}</p>
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 16,
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    marginBottom: 10
-                  }}
-                >
-                  <span>Preço: R$ {Number(item.preco).toFixed(2)}</span>
-                  <span>Categoria: {item.categoria}</span>
-                  <span>Status: {item.ativo ? "Disponível" : "Indisponível"}</span>
-                </div>
-
-                <button onClick={() => iniciarEdicao(item)}>Editar</button>
-              </>
-            )}
+            <button
+              onClick={salvarItem}
+              style={{
+                background: "#16a34a",
+                color: "#fff",
+                border: "none",
+                padding: "10px 16px",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "bold"
+              }}
+            >
+              Salvar
+            </button>
           </div>
-        );
-      })}
+        </div>
+
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #e5e5e5",
+            borderRadius: 12,
+            padding: 20,
+            boxShadow: "0 2px 6px rgba(0,0,0,0.05)"
+          }}
+        >
+          <h2 style={{ marginTop: 0, marginBottom: 16 }}>Itens cadastrados</h2>
+
+          {itens.map((item) => {
+            const estaEditando = editandoId === item.id;
+
+            return (
+              <div
+                key={item.id}
+                style={{
+                  border: "1px solid #e5e5e5",
+                  padding: 18,
+                  marginBottom: 14,
+                  borderRadius: 10,
+                  background: "#fff",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.05)"
+                }}
+              >
+                {estaEditando ? (
+                  <>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "2fr 3fr 140px 160px",
+                        gap: 12,
+                        marginBottom: 12,
+                        alignItems: "start"
+                      }}
+                    >
+                      <input
+                        value={itemEditando.nome}
+                        onChange={(e) =>
+                          setItemEditando({
+                            ...itemEditando,
+                            nome: e.target.value
+                          })
+                        }
+                        placeholder="Nome"
+                        style={{
+                          padding: "10px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                          width: "100%"
+                        }}
+                      />
+
+                      <textarea
+                        rows={4}
+                        value={itemEditando.descricao}
+                        onChange={(e) =>
+                          setItemEditando({
+                            ...itemEditando,
+                            descricao: e.target.value
+                          })
+                        }
+                        placeholder="Descrição"
+                        style={{
+                          resize: "vertical",
+                          padding: "10px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                          width: "100%"
+                        }}
+                      />
+
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={itemEditando.preco}
+                        onChange={(e) =>
+                          setItemEditando({
+                            ...itemEditando,
+                            preco: e.target.value
+                          })
+                        }
+                        placeholder="Preço"
+                        style={{
+                          padding: "10px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                          width: "100%"
+                        }}
+                      />
+
+                      <select
+                        value={itemEditando.categoria}
+                        onChange={(e) =>
+                          setItemEditando({
+                            ...itemEditando,
+                            categoria: e.target.value
+                          })
+                        }
+                        style={{
+                          padding: "10px",
+                          borderRadius: "6px",
+                          border: "1px solid #ccc",
+                          width: "100%"
+                        }}
+                      >
+                        <option value="salgado">Salgado</option>
+                        <option value="doce">Doce</option>
+                      </select>
+                    </div>
+
+                    <label style={{ display: "block", marginBottom: 12 }}>
+                      <input
+                        type="checkbox"
+                        checked={itemEditando.ativo}
+                        onChange={(e) =>
+                          setItemEditando({
+                            ...itemEditando,
+                            ativo: e.target.checked
+                          })
+                        }
+                        style={{ marginRight: 8 }}
+                      />
+                      Item disponível
+                    </label>
+
+                    <div style={{ display: "flex", gap: 10 }}>
+                      <button
+                        onClick={() => salvarEdicao(item.id)}
+                        style={{
+                          background: "#16a34a",
+                          color: "#fff",
+                          border: "none",
+                          padding: "10px 16px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontWeight: "bold"
+                        }}
+                      >
+                        Salvar alterações
+                      </button>
+
+                      <button
+                        onClick={cancelarEdicao}
+                        style={{
+                          background: "#e5e7eb",
+                          color: "#111",
+                          border: "none",
+                          padding: "10px 16px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontWeight: "bold"
+                        }}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <strong style={{ fontSize: 22 }}>{item.nome}</strong>
+                    <p style={{ marginTop: 8, marginBottom: 12, color: "#444" }}>
+                      {item.descricao}
+                    </p>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 16,
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        marginBottom: 12,
+                        color: "#333"
+                      }}
+                    >
+                      <span>Preço: R$ {Number(item.preco).toFixed(2)}</span>
+                      <span>Categoria: {item.categoria}</span>
+                      <span>
+                        Status: {item.ativo ? "Disponível" : "Indisponível"}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => iniciarEdicao(item)}
+                      style={{
+                        background: "#2563eb",
+                        color: "#fff",
+                        border: "none",
+                        padding: "8px 14px",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontWeight: "bold"
+                      }}
+                    >
+                      Editar
+                    </button>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
