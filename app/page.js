@@ -19,9 +19,9 @@ export default function Page() {
   }, [conversa, loading]);
 
   const enviarMensagem = async () => {
-    if (!msg.trim()) return;
+    if (!msg.trim() || loading) return;
 
-    const textoCliente = msg;
+    const textoCliente = msg.trim();
 
     const mensagemUsuario = {
       tipo: "cliente",
@@ -47,16 +47,37 @@ export default function Page() {
         })
       });
 
-      const data = await res.json();
+      let data = null;
+      const textoBruto = await res.text();
+
+      try {
+        data = textoBruto ? JSON.parse(textoBruto) : {};
+      } catch {
+        data = {
+          error: "Resposta não veio em JSON",
+          details: textoBruto || "Sem conteúdo retornado pelo servidor."
+        };
+      }
+
+      console.log("RESPOSTA BACKEND:", data);
+
+      const textoResposta =
+        data?.resposta ||
+        data?.details ||
+        data?.error ||
+        (typeof data === "object" ? JSON.stringify(data) : String(data)) ||
+        "Erro ao gerar resposta.";
 
       const mensagemMac = {
         tipo: "mac",
-        texto: data?.resposta || "Erro ao gerar resposta."
+        texto: textoResposta
       };
 
       setConversa((prev) => [...prev, mensagemMac]);
       setAnalise(data);
     } catch (erro) {
+      console.error("ERRO FRONTEND:", erro);
+
       setConversa((prev) => [
         ...prev,
         {
@@ -75,7 +96,7 @@ export default function Page() {
         <h2>M.A.C</h2>
         <p style={{ color: "#888" }}>Painel de Teste</p>
 
-        <hr />
+        <hr style={styles.hr} />
 
         <h3>Análise</h3>
 
@@ -93,6 +114,9 @@ export default function Page() {
 
         <p><b>Origem</b></p>
         <p>{analise?.origem_resposta || "-"}</p>
+
+        <p><b>Status</b></p>
+        <p>{analise?.ok === true ? "OK" : analise?.error ? "Erro" : "-"}</p>
       </div>
 
       <div style={styles.chatArea}>
@@ -130,8 +154,8 @@ export default function Page() {
             }}
           />
 
-          <button onClick={enviarMensagem} style={styles.button}>
-            Enviar
+          <button onClick={enviarMensagem} style={styles.button} disabled={loading}>
+            {loading ? "Enviando..." : "Enviar"}
           </button>
         </div>
       </div>
@@ -150,7 +174,13 @@ const styles = {
     width: 260,
     background: "#111",
     color: "#fff",
-    padding: 20
+    padding: 20,
+    overflowY: "auto"
+  },
+
+  hr: {
+    borderColor: "#333",
+    margin: "16px 0"
   },
 
   chatArea: {
@@ -163,7 +193,8 @@ const styles = {
   header: {
     padding: 20,
     borderBottom: "1px solid #ddd",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    background: "#fff"
   },
 
   chat: {
