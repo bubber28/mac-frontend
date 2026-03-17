@@ -93,30 +93,34 @@ export default function Page() {
   return (
     <div style={styles.container}>
       <div style={styles.sidebar}>
-        <h2>M.A.C</h2>
-        <p style={{ color: "#888" }}>Painel de Teste</p>
+        <h2 style={styles.logo}>M.A.C</h2>
+        <p style={styles.sidebarSubtitle}>Painel de Teste</p>
 
         <hr style={styles.hr} />
 
-        <h3>Análise</h3>
+        <h3 style={styles.sidebarTitle}>Análise</h3>
 
-        <p><b>Intenção</b></p>
-        <p>{analise?.analiseMensagem?.intencaoDetectada || "-"}</p>
+        <div style={styles.analysisBlock}>
+          <p style={styles.label}><b>Intenção</b></p>
+          <p style={styles.value}>{analise?.analiseMensagem?.intencaoDetectada || "-"}</p>
 
-        <p><b>Perfil DISC</b></p>
-        <p>{analise?.analiseMensagem?.perfilHipotese || "-"}</p>
+          <p style={styles.label}><b>Perfil DISC</b></p>
+          <p style={styles.value}>{analise?.analiseMensagem?.perfilHipotese || "-"}</p>
 
-        <p><b>Estratégia</b></p>
-        <p>{analise?.analiseMensagem?.estrategia || "-"}</p>
+          <p style={styles.label}><b>Estratégia</b></p>
+          <p style={styles.value}>{analise?.analiseMensagem?.estrategia || "-"}</p>
 
-        <p><b>Etapa</b></p>
-        <p>{analise?.estadoConversa?.etapa_conversa || "-"}</p>
+          <p style={styles.label}><b>Etapa</b></p>
+          <p style={styles.value}>{analise?.estadoConversa?.etapa_conversa || "-"}</p>
 
-        <p><b>Origem</b></p>
-        <p>{analise?.origem_resposta || "-"}</p>
+          <p style={styles.label}><b>Origem</b></p>
+          <p style={styles.value}>{analise?.origem_resposta || "-"}</p>
 
-        <p><b>Status</b></p>
-        <p>{analise?.ok === true ? "OK" : analise?.error ? "Erro" : "-"}</p>
+          <p style={styles.label}><b>Status</b></p>
+          <p style={styles.value}>
+            {analise?.ok === true ? "OK" : analise?.error ? "Erro" : "-"}
+          </p>
+        </div>
       </div>
 
       <div style={styles.chatArea}>
@@ -129,7 +133,10 @@ export default function Page() {
               style={{
                 ...styles.bubble,
                 alignSelf: item.tipo === "cliente" ? "flex-end" : "flex-start",
-                background: item.tipo === "cliente" ? "#DCF8C6" : "#FFF"
+                background: item.tipo === "cliente" ? "#6366f1" : "#ffffff",
+                color: item.tipo === "cliente" ? "#ffffff" : "#0f172a",
+                borderBottomRightRadius: item.tipo === "cliente" ? 6 : 14,
+                borderBottomLeftRadius: item.tipo === "cliente" ? 14 : 6
               }}
             >
               {item.texto}
@@ -137,7 +144,7 @@ export default function Page() {
           ))}
 
           {loading && (
-            <p style={{ color: "#888" }}>M.A.C está pensando...</p>
+            <p style={styles.loadingText}>M.A.C está pensando...</p>
           )}
         </div>
 
@@ -154,7 +161,15 @@ export default function Page() {
             }}
           />
 
-          <button onClick={enviarMensagem} style={styles.button} disabled={loading}>
+          <button
+            onClick={enviarMensagem}
+            style={{
+              ...styles.button,
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer"
+            }}
+            disabled={loading}
+          >
             {loading ? "Enviando..." : "Enviar"}
           </button>
         </div>
@@ -167,34 +182,77 @@ const styles = {
   container: {
     display: "flex",
     height: "100vh",
-    fontFamily: "Arial"
+    fontFamily: "Inter, Arial, sans-serif",
+    background: "#0f172a"
   },
 
   sidebar: {
-    width: 260,
-    background: "#111",
-    color: "#fff",
+    width: 280,
+    background: "#020617",
+    color: "#e2e8f0",
     padding: 20,
-    overflowY: "auto"
+    overflowY: "auto",
+    borderRight: "1px solid #1e293b"
+  },
+
+  logo: {
+    margin: 0,
+    fontSize: 28,
+    fontWeight: "700",
+    letterSpacing: "0.5px"
+  },
+
+  sidebarSubtitle: {
+    color: "#94a3b8",
+    marginTop: 6,
+    marginBottom: 0
   },
 
   hr: {
-    borderColor: "#333",
-    margin: "16px 0"
+    borderColor: "#1e293b",
+    margin: "18px 0"
+  },
+
+  sidebarTitle: {
+    marginTop: 0,
+    marginBottom: 16,
+    fontSize: 18
+  },
+
+  analysisBlock: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 6
+  },
+
+  label: {
+    margin: 0,
+    color: "#cbd5e1",
+    fontSize: 13
+  },
+
+  value: {
+    marginTop: 0,
+    marginBottom: 10,
+    color: "#f8fafc",
+    fontSize: 14,
+    wordBreak: "break-word"
   },
 
   chatArea: {
     flex: 1,
     display: "flex",
     flexDirection: "column",
-    background: "#F5F5F5"
+    background: "#f1f5f9"
   },
 
   header: {
     padding: 20,
-    borderBottom: "1px solid #ddd",
-    fontWeight: "bold",
-    background: "#fff"
+    borderBottom: "1px solid #e2e8f0",
+    fontWeight: "600",
+    background: "#ffffff",
+    fontSize: 18,
+    color: "#0f172a"
   },
 
   chat: {
@@ -202,41 +260,53 @@ const styles = {
     padding: 20,
     display: "flex",
     flexDirection: "column",
-    gap: 10,
+    gap: 12,
     overflowY: "auto",
-    scrollBehavior: "smooth"
+    scrollBehavior: "smooth",
+    background: "#eef2ff"
   },
 
   bubble: {
-    maxWidth: 420,
-    padding: 12,
-    borderRadius: 10,
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    maxWidth: 460,
+    padding: "12px 14px",
+    borderRadius: 14,
+    fontSize: 14,
+    lineHeight: 1.5,
+    boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
     whiteSpace: "pre-wrap",
     wordBreak: "break-word"
   },
 
+  loadingText: {
+    color: "#64748b",
+    fontSize: 14,
+    marginTop: 4
+  },
+
   inputArea: {
     display: "flex",
-    padding: 20,
-    borderTop: "1px solid #ddd",
-    background: "#fff"
+    padding: 16,
+    borderTop: "1px solid #e2e8f0",
+    background: "#ffffff"
   },
 
   input: {
     flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    border: "1px solid #ccc"
+    padding: "12px 14px",
+    borderRadius: 10,
+    border: "1px solid #cbd5e1",
+    outline: "none",
+    fontSize: 14,
+    background: "#f8fafc"
   },
 
   button: {
     marginLeft: 10,
-    padding: "12px 18px",
+    padding: "12px 20px",
     border: "none",
-    background: "#4CAF50",
+    background: "#6366f1",
     color: "#fff",
-    borderRadius: 8,
-    cursor: "pointer"
+    borderRadius: 10,
+    fontWeight: "600"
   }
 };
