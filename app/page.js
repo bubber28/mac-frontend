@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useRef, useEffect } from "react";
 
 export default function Page() {
@@ -33,7 +32,8 @@ export default function Page() {
     setMsg("");
 
     try {
-      const res = await fetch("https://mac-backend-zs62.onrender.com/chat", {
+      // === CORREÇÃO FEITA AQUI ===
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -77,7 +77,6 @@ export default function Page() {
       setAnalise(data);
     } catch (erro) {
       console.error("ERRO FRONTEND:", erro);
-
       setConversa((prev) => [
         ...prev,
         {
@@ -100,42 +99,34 @@ export default function Page() {
             <p style={styles.sidebarSubtitle}>Painel de Teste</p>
           </div>
         </div>
-
         <hr style={styles.hr} />
-
         <div style={styles.analysisHeaderRow}>
           <h3 style={styles.sidebarTitle}>Análise</h3>
           <span style={styles.statusBadge}>
             {analise?.ok === true ? "Online" : analise?.error ? "Erro" : "Aguardando"}
           </span>
         </div>
-
         <div style={styles.analysisGrid}>
           <div style={styles.analysisCard}>
             <p style={styles.label}>Intenção</p>
             <p style={styles.value}>{analise?.analiseMensagem?.intencaoDetectada || "-"}</p>
           </div>
-
           <div style={styles.analysisCard}>
             <p style={styles.label}>Perfil DISC</p>
             <p style={styles.value}>{analise?.analiseMensagem?.perfilHipotese || "-"}</p>
           </div>
-
           <div style={styles.analysisCard}>
             <p style={styles.label}>Estratégia</p>
             <p style={styles.value}>{analise?.analiseMensagem?.estrategia || "-"}</p>
           </div>
-
           <div style={styles.analysisCard}>
             <p style={styles.label}>Etapa</p>
             <p style={styles.value}>{analise?.estadoConversa?.etapa_conversa || "-"}</p>
           </div>
-
           <div style={styles.analysisCard}>
             <p style={styles.label}>Origem</p>
             <p style={styles.value}>{analise?.origem_resposta || "-"}</p>
           </div>
-
           <div style={styles.analysisCard}>
             <p style={styles.label}>Status</p>
             <p style={styles.value}>
@@ -154,7 +145,6 @@ export default function Page() {
                 Teste as respostas do M.A.C em tempo real
               </div>
             </div>
-
             <div style={styles.headerDotWrap}>
               <span style={styles.headerDot} />
               <span style={styles.headerStatus}>Ativo</span>
@@ -184,7 +174,6 @@ export default function Page() {
                 <span style={styles.messageTag}>
                   {item.tipo === "cliente" ? "Cliente" : "M.A.C"}
                 </span>
-
                 <div
                   style={{
                     ...styles.bubble,
@@ -225,7 +214,6 @@ export default function Page() {
                 }
               }}
             />
-
             <button
               onClick={enviarMensagem}
               style={{
@@ -251,7 +239,6 @@ const styles = {
     fontFamily: "Inter, Arial, sans-serif",
     background: "#020617"
   },
-
   sidebar: {
     width: 310,
     background: "linear-gradient(180deg, #020617 0%, #0f172a 100%)",
@@ -261,13 +248,11 @@ const styles = {
     borderRight: "1px solid #1e293b",
     boxShadow: "inset -1px 0 0 #1e293b"
   },
-
   brandArea: {
     display: "flex",
     alignItems: "center",
     gap: 12
   },
-
   logoCircle: {
     width: 44,
     height: 44,
@@ -281,40 +266,34 @@ const styles = {
     fontSize: 20,
     boxShadow: "0 8px 20px rgba(99,102,241,0.35)"
   },
-
   logoText: {
     margin: 0,
     fontSize: 28,
     fontWeight: "700",
     letterSpacing: "0.5px"
   },
-
   sidebarSubtitle: {
     color: "#94a3b8",
     marginTop: 4,
     marginBottom: 0,
     fontSize: 13
   },
-
   hr: {
     border: "none",
     borderTop: "1px solid #1e293b",
     margin: "20px 0"
   },
-
   analysisHeaderRow: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 16
   },
-
   sidebarTitle: {
     margin: 0,
     fontSize: 18,
     fontWeight: "700"
   },
-
   statusBadge: {
     fontSize: 12,
     padding: "6px 10px",
@@ -323,19 +302,16 @@ const styles = {
     color: "#cbd5e1",
     border: "1px solid #1f2937"
   },
-
   analysisGrid: {
     display: "grid",
     gap: 12
   },
-
   analysisCard: {
     background: "rgba(15, 23, 42, 0.7)",
     border: "1px solid #1e293b",
     borderRadius: 14,
     padding: 14
   },
-
   label: {
     margin: 0,
     color: "#94a3b8",
@@ -343,7 +319,6 @@ const styles = {
     textTransform: "uppercase",
     letterSpacing: "0.4px"
   },
-
   value: {
     marginTop: 8,
     marginBottom: 0,
@@ -352,7 +327,6 @@ const styles = {
     fontWeight: "600",
     wordBreak: "break-word"
   },
-
   chatArea: {
     flex: 1,
     display: "flex",
@@ -361,7 +335,6 @@ const styles = {
     background: "radial-gradient(circle at top, #0f172a 0%, #020617 70%)",
     padding: 24
   },
-
   chatShell: {
     width: "100%",
     maxWidth: 920,
@@ -374,7 +347,6 @@ const styles = {
     border: "1px solid rgba(148,163,184,0.12)",
     background: "#020617"
   },
-
   header: {
     padding: "18px 22px",
     borderBottom: "1px solid #1e293b",
@@ -383,25 +355,21 @@ const styles = {
     alignItems: "center",
     justifyContent: "space-between"
   },
-
   headerTitle: {
     fontSize: 22,
     fontWeight: "700",
     color: "#f8fafc"
   },
-
   headerSub: {
     marginTop: 4,
     fontSize: 13,
     color: "#94a3b8"
   },
-
   headerDotWrap: {
     display: "flex",
     alignItems: "center",
     gap: 8
   },
-
   headerDot: {
     width: 10,
     height: 10,
@@ -409,12 +377,10 @@ const styles = {
     background: "#22c55e",
     boxShadow: "0 0 12px rgba(34,197,94,0.8)"
   },
-
   headerStatus: {
     fontSize: 13,
     color: "#cbd5e1"
   },
-
   chat: {
     flex: 1,
     padding: 20,
@@ -425,7 +391,6 @@ const styles = {
     background:
       "linear-gradient(180deg, rgba(2,6,23,1) 0%, rgba(15,23,42,1) 100%)"
   },
-
   emptyState: {
     height: "100%",
     display: "flex",
@@ -436,26 +401,22 @@ const styles = {
     color: "#94a3b8",
     padding: 30
   },
-
   emptyIcon: {
     fontSize: 44,
     marginBottom: 14
   },
-
   emptyTitle: {
     margin: 0,
     fontSize: 18,
     fontWeight: "700",
     color: "#e2e8f0"
   },
-
   emptyText: {
     marginTop: 8,
     maxWidth: 420,
     fontSize: 14,
     lineHeight: 1.5
   },
-
   messageTag: {
     fontSize: 11,
     color: "#94a3b8",
@@ -463,7 +424,6 @@ const styles = {
     paddingLeft: 4,
     paddingRight: 4
   },
-
   bubble: {
     maxWidth: "75%",
     padding: "12px 14px",
@@ -473,14 +433,12 @@ const styles = {
     whiteSpace: "pre-wrap",
     wordBreak: "break-word"
   },
-
   loadingWrap: {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
     gap: 8
   },
-
   typingBubble: {
     display: "flex",
     alignItems: "center",
@@ -491,20 +449,17 @@ const styles = {
     borderRadius: 16,
     width: "fit-content"
   },
-
   dot: {
     width: 8,
     height: 8,
     borderRadius: "50%",
     background: "#94a3b8"
   },
-
   loadingText: {
     color: "#94a3b8",
     fontSize: 13,
     margin: 0
   },
-
   inputArea: {
     padding: 16,
     borderTop: "1px solid #1e293b",
@@ -512,7 +467,6 @@ const styles = {
     display: "flex",
     gap: 10
   },
-
   input: {
     flex: 1,
     padding: "14px 16px",
@@ -523,7 +477,6 @@ const styles = {
     background: "#0f172a",
     color: "#fff"
   },
-
   button: {
     padding: "14px 22px",
     border: "none",
