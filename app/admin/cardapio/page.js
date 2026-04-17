@@ -8,35 +8,38 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+const EMPRESA_ID = "77528633-d34c-4b1e-946d-e5658b1ee233";
+
 export default function CardapioAdmin() {
   const [itens, setItens] = useState([]);
   const [novoItem, setNovoItem] = useState({
-    nome: "",
+    nome_servico: "",
     descricao: "",
     preco: "",
-    categoria: "salgado"
+    tipo_item: "salgado",
   });
   const [editandoId, setEditandoId] = useState(null);
   const [itemEditando, setItemEditando] = useState({
-    nome: "",
+    nome_servico: "",
     descricao: "",
     preco: "",
-    categoria: "salgado",
-    ativo: true
+    tipo_item: "salgado",
+    ativo: true,
   });
-
-  const empresaId = 2;
 
   async function carregarItens() {
     const { data, error } = await supabase
-      .from("cardapio_itens")
+      .from("servicos")
       .select("*")
-      .eq("empresa_id", empresaId)
-      .order("id");
+      .eq("empresa_id", EMPRESA_ID)
+      .order("created_at", { ascending: true });
 
-    if (!error) {
-      setItens(data || []);
+    if (error) {
+      console.error("Erro ao carregar serviços:", error);
+      return;
     }
+
+    setItens(data || []);
   }
 
   useEffect(() => {
@@ -44,32 +47,31 @@ export default function CardapioAdmin() {
   }, []);
 
   async function salvarItem() {
-    if (!novoItem.nome || !novoItem.preco) {
+    if (!novoItem.nome_servico || novoItem.preco === "") {
       alert("Nome e preço são obrigatórios");
       return;
     }
 
-    const { error } = await supabase.from("cardapio_itens").insert({
-      empresa_id: empresaId,
-      nome: novoItem.nome,
+    const { error } = await supabase.from("servicos").insert({
+      empresa_id: EMPRESA_ID,
+      nome_servico: novoItem.nome_servico,
       descricao: novoItem.descricao,
       preco: Number(novoItem.preco),
-      categoria: novoItem.categoria,
-      tipo_item: "produto",
+      tipo_item: novoItem.tipo_item,
       ativo: true,
-      destaque: false
     });
 
     if (error) {
+      console.error(error);
       alert("Erro ao salvar item");
       return;
     }
 
     setNovoItem({
-      nome: "",
+      nome_servico: "",
       descricao: "",
       preco: "",
-      categoria: "salgado"
+      tipo_item: "salgado",
     });
 
     carregarItens();
@@ -78,43 +80,44 @@ export default function CardapioAdmin() {
   function iniciarEdicao(item) {
     setEditandoId(item.id);
     setItemEditando({
-      nome: item.nome || "",
+      nome_servico: item.nome_servico || "",
       descricao: item.descricao || "",
       preco: item.preco ?? "",
-      categoria: item.categoria || "salgado",
-      ativo: item.ativo ?? true
+      tipo_item: item.tipo_item || "salgado",
+      ativo: item.ativo ?? true,
     });
   }
 
   function cancelarEdicao() {
     setEditandoId(null);
     setItemEditando({
-      nome: "",
+      nome_servico: "",
       descricao: "",
       preco: "",
-      categoria: "salgado",
-      ativo: true
+      tipo_item: "salgado",
+      ativo: true,
     });
   }
 
   async function salvarEdicao(id) {
-    if (!itemEditando.nome || itemEditando.preco === "") {
+    if (!itemEditando.nome_servico || itemEditando.preco === "") {
       alert("Nome e preço são obrigatórios");
       return;
     }
 
     const { error } = await supabase
-      .from("cardapio_itens")
+      .from("servicos")
       .update({
-        nome: itemEditando.nome,
+        nome_servico: itemEditando.nome_servico,
         descricao: itemEditando.descricao,
         preco: Number(itemEditando.preco),
-        categoria: itemEditando.categoria,
-        ativo: itemEditando.ativo
+        tipo_item: itemEditando.tipo_item,
+        ativo: itemEditando.ativo,
       })
       .eq("id", id);
 
     if (error) {
+      console.error(error);
       alert("Erro ao atualizar item");
       return;
     }
@@ -123,327 +126,328 @@ export default function CardapioAdmin() {
     carregarItens();
   }
 
+  async function alternarStatus(item) {
+    const { error } = await supabase
+      .from("servicos")
+      .update({ ativo: !item.ativo })
+      .eq("id", item.id);
+
+    if (error) {
+      console.error(error);
+      alert("Erro ao alterar status");
+      return;
+    }
+
+    carregarItens();
+  }
+
   return (
-    <div
-      style={{
-        padding: 32,
-        fontFamily: "Arial",
-        background: "#f7f7f7",
-        minHeight: "100vh"
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto"
-        }}
-      >
-        <h1 style={{ marginBottom: 24 }}>Painel de Cardápio</h1>
+    <div style={styles.page}>
+      <div style={styles.header}>
+        <h1 style={styles.title}>Admin do Cardápio</h1>
+        <p style={styles.subtitle}>Empresa: {EMPRESA_ID}</p>
+      </div>
 
-        <div
-          style={{
-            background: "#fff",
-            border: "1px solid #e5e5e5",
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 24,
-            boxShadow: "0 2px 6px rgba(0,0,0,0.05)"
-          }}
-        >
-          <h2 style={{ marginTop: 0, marginBottom: 16 }}>Novo item</h2>
+      <div style={styles.formCard}>
+        <h2 style={styles.sectionTitle}>Novo item</h2>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "2fr 3fr 140px 160px 120px",
-              gap: 12,
-              marginBottom: 12,
-              alignItems: "start"
-            }}
+        <div style={styles.grid}>
+          <input
+            style={styles.input}
+            placeholder="Nome do serviço"
+            value={novoItem.nome_servico}
+            onChange={(e) =>
+              setNovoItem((prev) => ({ ...prev, nome_servico: e.target.value }))
+            }
+          />
+
+          <input
+            style={styles.input}
+            placeholder="Preço"
+            type="number"
+            step="0.01"
+            value={novoItem.preco}
+            onChange={(e) =>
+              setNovoItem((prev) => ({ ...prev, preco: e.target.value }))
+            }
+          />
+
+          <input
+            style={{ ...styles.input, gridColumn: "1 / -1" }}
+            placeholder="Descrição"
+            value={novoItem.descricao}
+            onChange={(e) =>
+              setNovoItem((prev) => ({ ...prev, descricao: e.target.value }))
+            }
+          />
+
+          <select
+            style={styles.input}
+            value={novoItem.tipo_item}
+            onChange={(e) =>
+              setNovoItem((prev) => ({ ...prev, tipo_item: e.target.value }))
+            }
           >
-            <input
-              placeholder="Nome"
-              value={novoItem.nome}
-              onChange={(e) =>
-                setNovoItem({ ...novoItem, nome: e.target.value })
-              }
-              style={{
-                padding: "10px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                width: "100%"
-              }}
-            />
+            <option value="salgado">Salgado</option>
+            <option value="encomenda">Encomenda</option>
+            <option value="combo">Combo</option>
+            <option value="doce">Doce</option>
+          </select>
 
-            <textarea
-              placeholder="Descrição"
-              rows={4}
-              value={novoItem.descricao}
-              onChange={(e) =>
-                setNovoItem({ ...novoItem, descricao: e.target.value })
-              }
-              style={{
-                resize: "vertical",
-                padding: "10px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                width: "100%"
-              }}
-            />
-
-            <input
-              placeholder="Preço"
-              type="number"
-              step="0.01"
-              value={novoItem.preco}
-              onChange={(e) =>
-                setNovoItem({ ...novoItem, preco: e.target.value })
-              }
-              style={{
-                padding: "10px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                width: "100%"
-              }}
-            />
-
-            <select
-              value={novoItem.categoria}
-              onChange={(e) =>
-                setNovoItem({ ...novoItem, categoria: e.target.value })
-              }
-              style={{
-                padding: "10px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                width: "100%"
-              }}
-            >
-              <option value="salgado">Salgado</option>
-              <option value="doce">Doce</option>
-            </select>
-
-            <button
-              onClick={salvarItem}
-              style={{
-                background: "#16a34a",
-                color: "#fff",
-                border: "none",
-                padding: "10px 16px",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontWeight: "bold"
-              }}
-            >
-              Salvar
-            </button>
-          </div>
+          <button style={styles.primaryButton} onClick={salvarItem}>
+            Salvar item
+          </button>
         </div>
+      </div>
 
-        <div
-          style={{
-            background: "#fff",
-            border: "1px solid #e5e5e5",
-            borderRadius: 12,
-            padding: 20,
-            boxShadow: "0 2px 6px rgba(0,0,0,0.05)"
-          }}
-        >
-          <h2 style={{ marginTop: 0, marginBottom: 16 }}>Itens cadastrados</h2>
+      <div style={styles.listCard}>
+        <h2 style={styles.sectionTitle}>Itens cadastrados</h2>
 
-          {itens.map((item) => {
-            const estaEditando = editandoId === item.id;
+        {itens.length === 0 ? (
+          <p style={styles.emptyText}>Nenhum item cadastrado.</p>
+        ) : (
+          <div style={styles.itemsWrap}>
+            {itens.map((item) => {
+              const emEdicao = editandoId === item.id;
 
-            return (
-              <div
-                key={item.id}
-                style={{
-                  border: "1px solid #e5e5e5",
-                  padding: 18,
-                  marginBottom: 14,
-                  borderRadius: 10,
-                  background: "#fff",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.05)"
-                }}
-              >
-                {estaEditando ? (
-                  <>
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "2fr 3fr 140px 160px",
-                        gap: 12,
-                        marginBottom: 12,
-                        alignItems: "start"
-                      }}
-                    >
+              return (
+                <div key={item.id} style={styles.itemCard}>
+                  {emEdicao ? (
+                    <>
                       <input
-                        value={itemEditando.nome}
+                        style={styles.input}
+                        value={itemEditando.nome_servico}
                         onChange={(e) =>
-                          setItemEditando({
-                            ...itemEditando,
-                            nome: e.target.value
-                          })
+                          setItemEditando((prev) => ({
+                            ...prev,
+                            nome_servico: e.target.value,
+                          }))
                         }
-                        placeholder="Nome"
-                        style={{
-                          padding: "10px",
-                          borderRadius: "6px",
-                          border: "1px solid #ccc",
-                          width: "100%"
-                        }}
                       />
 
-                      <textarea
-                        rows={4}
+                      <input
+                        style={styles.input}
                         value={itemEditando.descricao}
                         onChange={(e) =>
-                          setItemEditando({
-                            ...itemEditando,
-                            descricao: e.target.value
-                          })
+                          setItemEditando((prev) => ({
+                            ...prev,
+                            descricao: e.target.value,
+                          }))
                         }
-                        placeholder="Descrição"
-                        style={{
-                          resize: "vertical",
-                          padding: "10px",
-                          borderRadius: "6px",
-                          border: "1px solid #ccc",
-                          width: "100%"
-                        }}
                       />
 
                       <input
+                        style={styles.input}
                         type="number"
                         step="0.01"
                         value={itemEditando.preco}
                         onChange={(e) =>
-                          setItemEditando({
-                            ...itemEditando,
-                            preco: e.target.value
-                          })
+                          setItemEditando((prev) => ({
+                            ...prev,
+                            preco: e.target.value,
+                          }))
                         }
-                        placeholder="Preço"
-                        style={{
-                          padding: "10px",
-                          borderRadius: "6px",
-                          border: "1px solid #ccc",
-                          width: "100%"
-                        }}
                       />
 
                       <select
-                        value={itemEditando.categoria}
+                        style={styles.input}
+                        value={itemEditando.tipo_item}
                         onChange={(e) =>
-                          setItemEditando({
-                            ...itemEditando,
-                            categoria: e.target.value
-                          })
+                          setItemEditando((prev) => ({
+                            ...prev,
+                            tipo_item: e.target.value,
+                          }))
                         }
-                        style={{
-                          padding: "10px",
-                          borderRadius: "6px",
-                          border: "1px solid #ccc",
-                          width: "100%"
-                        }}
                       >
                         <option value="salgado">Salgado</option>
+                        <option value="encomenda">Encomenda</option>
+                        <option value="combo">Combo</option>
                         <option value="doce">Doce</option>
                       </select>
-                    </div>
 
-                    <label style={{ display: "block", marginBottom: 12 }}>
-                      <input
-                        type="checkbox"
-                        checked={itemEditando.ativo}
-                        onChange={(e) =>
-                          setItemEditando({
-                            ...itemEditando,
-                            ativo: e.target.checked
-                          })
-                        }
-                        style={{ marginRight: 8 }}
-                      />
-                      Item disponível
-                    </label>
+                      <label style={styles.checkboxRow}>
+                        <input
+                          type="checkbox"
+                          checked={itemEditando.ativo}
+                          onChange={(e) =>
+                            setItemEditando((prev) => ({
+                              ...prev,
+                              ativo: e.target.checked,
+                            }))
+                          }
+                        />
+                        Ativo
+                      </label>
 
-                    <div style={{ display: "flex", gap: 10 }}>
-                      <button
-                        onClick={() => salvarEdicao(item.id)}
-                        style={{
-                          background: "#16a34a",
-                          color: "#fff",
-                          border: "none",
-                          padding: "10px 16px",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          fontWeight: "bold"
-                        }}
-                      >
-                        Salvar alterações
-                      </button>
+                      <div style={styles.actions}>
+                        <button
+                          style={styles.primaryButton}
+                          onClick={() => salvarEdicao(item.id)}
+                        >
+                          Salvar
+                        </button>
+                        <button
+                          style={styles.secondaryButton}
+                          onClick={cancelarEdicao}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={styles.itemHeader}>
+                        <strong>{item.nome_servico}</strong>
+                        <span style={styles.badge}>
+                          {item.ativo ? "Ativo" : "Inativo"}
+                        </span>
+                      </div>
 
-                      <button
-                        onClick={cancelarEdicao}
-                        style={{
-                          background: "#e5e7eb",
-                          color: "#111",
-                          border: "none",
-                          padding: "10px 16px",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          fontWeight: "bold"
-                        }}
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <strong style={{ fontSize: 22 }}>{item.nome}</strong>
-                    <p style={{ marginTop: 8, marginBottom: 12, color: "#444" }}>
-                      {item.descricao}
-                    </p>
+                      <p style={styles.itemText}>{item.descricao || "Sem descrição"}</p>
+                      <p style={styles.itemText}>
+                        Preço: R$ {Number(item.preco || 0).toFixed(2)}
+                      </p>
+                      <p style={styles.itemText}>Tipo: {item.tipo_item || "-"}</p>
 
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 16,
-                        alignItems: "center",
-                        flexWrap: "wrap",
-                        marginBottom: 12,
-                        color: "#333"
-                      }}
-                    >
-                      <span>Preço: R$ {Number(item.preco).toFixed(2)}</span>
-                      <span>Categoria: {item.categoria}</span>
-                      <span>
-                        Status: {item.ativo ? "Disponível" : "Indisponível"}
-                      </span>
-                    </div>
-
-                    <button
-                      onClick={() => iniciarEdicao(item)}
-                      style={{
-                        background: "#2563eb",
-                        color: "#fff",
-                        border: "none",
-                        padding: "8px 14px",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontWeight: "bold"
-                      }}
-                    >
-                      Editar
-                    </button>
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                      <div style={styles.actions}>
+                        <button
+                          style={styles.primaryButton}
+                          onClick={() => iniciarEdicao(item)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          style={styles.secondaryButton}
+                          onClick={() => alternarStatus(item)}
+                        >
+                          {item.ativo ? "Desativar" : "Ativar"}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    background: "#0f172a",
+    color: "#fff",
+    padding: 16,
+    fontFamily: "Arial, sans-serif",
+    boxSizing: "border-box",
+  },
+  header: {
+    marginBottom: 20,
+  },
+  title: {
+    margin: 0,
+    fontSize: 28,
+  },
+  subtitle: {
+    marginTop: 6,
+    color: "#94a3b8",
+    fontSize: 14,
+    wordBreak: "break-word",
+  },
+  formCard: {
+    background: "#111827",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+  },
+  listCard: {
+    background: "#111827",
+    borderRadius: 16,
+    padding: 16,
+  },
+  sectionTitle: {
+    marginTop: 0,
+    marginBottom: 16,
+    fontSize: 20,
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: 12,
+  },
+  input: {
+    width: "100%",
+    padding: 12,
+    borderRadius: 10,
+    border: "1px solid #334155",
+    background: "#1e293b",
+    color: "#fff",
+    boxSizing: "border-box",
+  },
+  primaryButton: {
+    background: "#22c55e",
+    color: "#052e16",
+    border: "none",
+    borderRadius: 10,
+    padding: "10px 14px",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+  secondaryButton: {
+    background: "#334155",
+    color: "#fff",
+    border: "none",
+    borderRadius: 10,
+    padding: "10px 14px",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+  emptyText: {
+    color: "#94a3b8",
+  },
+  itemsWrap: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gap: 14,
+  },
+  itemCard: {
+    background: "#1e293b",
+    borderRadius: 14,
+    padding: 14,
+  },
+  itemHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 10,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  badge: {
+    background: "#0f172a",
+    color: "#cbd5e1",
+    padding: "4px 8px",
+    borderRadius: 999,
+    fontSize: 12,
+  },
+  itemText: {
+    margin: "6px 0",
+    color: "#cbd5e1",
+  },
+  checkboxRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 10,
+    color: "#cbd5e1",
+  },
+  actions: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 12,
+  },
+};
