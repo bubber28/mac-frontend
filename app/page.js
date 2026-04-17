@@ -1,41 +1,55 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const EMPRESA_ID = "77528633-d34c-4b1e-946d-e5658b1ee233";
 
 export default function Page() {
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
-  const [conversa, setConversa] = useState([]);
+  const [conversa, setConversa] = useState([
+    {
+      tipo: "mac",
+      texto: "Olá! Tudo bem? Sou o M.A.C. Como posso te ajudar hoje?",
+    },
+  ]);
   const [analise, setAnalise] = useState(null);
-  const chatRef = useRef(null);
+
+  const endRef = useRef(null);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTo({
-        top: chatRef.current.scrollHeight,
-        behavior: "smooth",
-      });
-    }
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [conversa, loading]);
+
+  useEffect(() => {
+    if (!textareaRef.current) return;
+    textareaRef.current.style.height = "auto";
+    textareaRef.current.style.height = `${Math.min(
+      textareaRef.current.scrollHeight,
+      120
+    )}px`;
+  }, [msg]);
 
   const enviarMensagem = async () => {
     if (!msg.trim() || loading) return;
 
     const textoCliente = msg.trim();
 
-    const mensagemUsuario = {
-      tipo: "cliente",
-      texto: textoCliente,
-    };
+    setConversa((prev) => [
+      ...prev,
+      {
+        tipo: "cliente",
+        texto: textoCliente,
+      },
+    ]);
 
-    setConversa((prev) => [...prev, mensagemUsuario]);
-    setLoading(true);
     setMsg("");
+    setLoading(true);
 
     try {
       const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
+
       const res = await fetch(`${baseUrl}/chat`, {
         method: "POST",
         headers: {
@@ -50,8 +64,8 @@ export default function Page() {
         }),
       });
 
-      let data = null;
       const textoBruto = await res.text();
+      let data = {};
 
       try {
         data = textoBruto ? JSON.parse(textoBruto) : {};
@@ -62,21 +76,20 @@ export default function Page() {
         };
       }
 
-      console.log("RESPOSTA BACKEND:", data);
-
       const textoResposta =
         data?.resposta ||
         data?.details ||
         data?.error ||
-        (typeof data === "object" ? JSON.stringify(data) : String(data)) ||
         "Erro ao gerar resposta.";
 
-      const mensagemMac = {
-        tipo: "mac",
-        texto: textoResposta,
-      };
+      setConversa((prev) => [
+        ...prev,
+        {
+          tipo: "mac",
+          texto: textoResposta,
+        },
+      ]);
 
-      setConversa((prev) => [...prev, mensagemMac]);
       setAnalise(data?.analise || null);
     } catch (erro) {
       console.error("ERRO FRONTEND:", erro);
@@ -100,54 +113,19 @@ export default function Page() {
   };
 
   return (
-    <div style={styles.container}>
-      <aside style={styles.sidebar}>
-        <div style={styles.brandArea}>
-          <div style={styles.logoCircle}>M</div>
-          <div>
-            <h1 style={styles.logoText}>M.A.C</h1>
-            <p style={styles.sidebarSubtitle}>Painel de Teste</p>
-          </div>
-        </div>
-
-        <div style={styles.infoBox}>
-          <strong>Empresa ID</strong>
-          <p style={styles.infoText}>{EMPRESA_ID}</p>
-        </div>
-
-        <div style={styles.infoBox}>
-          <strong>Status</strong>
-          <p style={styles.infoText}>{loading ? "Respondendo..." : "Pronto"}</p>
-        </div>
-
-        <div style={styles.infoBox}>
-          <strong>Análise</strong>
-          <p style={styles.infoText}>
-            Intenção: {analise?.intencao_detectada || "-"}
-          </p>
-          <p style={styles.infoText}>
-            Perfil: {analise?.perfil_hipotese || "-"}
-          </p>
-        </div>
-      </aside>
-
-      <main style={styles.main}>
-        <div style={styles.chatHeader}>
-          <div>
-            <h2 style={styles.chatTitle}>Conversa com o M.A.C.</h2>
-            <p style={styles.chatSubtitle}>
-              Teste de atendimento com backend e Supabase
-            </p>
-          </div>
-        </div>
-
-        <div ref={chatRef} style={styles.chatArea}>
-          {conversa.length === 0 && (
-            <div style={styles.emptyState}>
-              Envie uma mensagem para começar o teste.
+    <div style={styles.page}>
+      <div style={styles.phone}>
+        <header style={styles.header}>
+          <div style={styles.avatar}>M</div>
+          <div style={styles.headerText}>
+            <div style={styles.headerTitle}>M.A.C</div>
+            <div style={styles.headerSubtitle}>
+              {loading ? "digitando..." : "online"}
             </div>
-          )}
+          </div>
+        </header>
 
+        <main style={styles.chatArea}>
           {conversa.map((item, index) => (
             <div
               key={index}
@@ -159,203 +137,200 @@ export default function Page() {
             >
               <div
                 style={{
-                  ...styles.messageBubble,
+                  ...styles.bubble,
                   ...(item.tipo === "cliente"
-                    ? styles.clienteBubble
+                    ? styles.clientBubble
                     : styles.macBubble),
                 }}
               >
-                <div style={styles.messageLabel}>
-                  {item.tipo === "cliente" ? "Cliente" : "M.A.C"}
-                </div>
                 <div style={styles.messageText}>{item.texto}</div>
               </div>
             </div>
           ))}
 
           {loading && (
-            <div style={styles.messageRow}>
-              <div style={{ ...styles.messageBubble, ...styles.macBubble }}>
-                <div style={styles.messageLabel}>M.A.C</div>
-                <div style={styles.messageText}>Digitando...</div>
+            <div style={{ ...styles.messageRow, justifyContent: "flex-start" }}>
+              <div style={{ ...styles.bubble, ...styles.macBubble }}>
+                <div style={styles.messageText}>digitando...</div>
               </div>
             </div>
           )}
-        </div>
 
-        <div style={styles.inputArea}>
-          <textarea
-            value={msg}
-            onChange={(e) => setMsg(e.target.value)}
-            onKeyDown={onKeyDown}
-            placeholder="Digite sua mensagem..."
-            style={styles.textarea}
-            rows={3}
-          />
-          <button
-            onClick={enviarMensagem}
-            disabled={loading || !msg.trim()}
-            style={{
-              ...styles.sendButton,
-              opacity: loading || !msg.trim() ? 0.6 : 1,
-            }}
-          >
-            {loading ? "Enviando..." : "Enviar"}
-          </button>
-        </div>
-      </main>
+          <div ref={endRef} />
+        </main>
+
+        <footer style={styles.footer}>
+          <div style={styles.inputWrap}>
+            <textarea
+              ref={textareaRef}
+              value={msg}
+              onChange={(e) => setMsg(e.target.value)}
+              onKeyDown={onKeyDown}
+              placeholder="Digite uma mensagem"
+              style={styles.textarea}
+              rows={1}
+            />
+            <button
+              onClick={enviarMensagem}
+              disabled={loading || !msg.trim()}
+              style={{
+                ...styles.sendButton,
+                opacity: loading || !msg.trim() ? 0.55 : 1,
+              }}
+            >
+              ➤
+            </button>
+          </div>
+
+          <div style={styles.analysisBar}>
+            <span>Intenção: {analise?.intencao_detectada || "-"}</span>
+            <span>Perfil: {analise?.perfil_hipotese || "-"}</span>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }
 
 const styles = {
-  container: {
+  page: {
     minHeight: "100vh",
+    background: "#0b141a",
     display: "flex",
-    flexDirection: "row",
-    background: "#0f172a",
-    color: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 0,
     fontFamily: "Arial, sans-serif",
-    gap: 0,
-    flexWrap: "wrap",
   },
-  sidebar: {
+  phone: {
     width: "100%",
-    maxWidth: 320,
-    background: "#111827",
-    padding: 20,
-    boxSizing: "border-box",
-    borderRight: "1px solid rgba(255,255,255,0.08)",
+    maxWidth: 520,
+    height: "100vh",
+    background: "#111b21",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
   },
-  brandArea: {
+  header: {
+    height: 64,
+    background: "#202c33",
     display: "flex",
     alignItems: "center",
+    padding: "0 14px",
     gap: 12,
-    marginBottom: 24,
+    borderBottom: "1px solid rgba(255,255,255,0.05)",
+    flexShrink: 0,
   },
-  logoCircle: {
-    width: 44,
-    height: 44,
+  avatar: {
+    width: 40,
+    height: 40,
     borderRadius: "50%",
-    background: "#22c55e",
-    color: "#0f172a",
+    background: "#25d366",
+    color: "#0b141a",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontWeight: "bold",
-    fontSize: 22,
+    fontSize: 20,
     flexShrink: 0,
   },
-  logoText: {
-    margin: 0,
-    fontSize: 24,
-  },
-  sidebarSubtitle: {
-    margin: "4px 0 0 0",
-    fontSize: 14,
-    color: "#94a3b8",
-  },
-  infoBox: {
-    background: "#1f2937",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 14,
-  },
-  infoText: {
-    margin: "8px 0 0 0",
-    fontSize: 14,
-    color: "#cbd5e1",
-    wordBreak: "break-word",
-  },
-  main: {
-    flex: 1,
-    minWidth: 0,
+  headerText: {
     display: "flex",
     flexDirection: "column",
-    minHeight: "100vh",
+    minWidth: 0,
   },
-  chatHeader: {
-    padding: 20,
-    borderBottom: "1px solid rgba(255,255,255,0.08)",
-    background: "#0b1220",
+  headerTitle: {
+    color: "#e9edef",
+    fontWeight: 600,
+    fontSize: 16,
   },
-  chatTitle: {
-    margin: 0,
-    fontSize: 22,
-  },
-  chatSubtitle: {
-    margin: "6px 0 0 0",
-    color: "#94a3b8",
-    fontSize: 14,
+  headerSubtitle: {
+    color: "#8696a0",
+    fontSize: 12,
   },
   chatArea: {
     flex: 1,
     overflowY: "auto",
-    padding: 16,
-    boxSizing: "border-box",
-  },
-  emptyState: {
-    color: "#94a3b8",
-    textAlign: "center",
-    marginTop: 40,
+    padding: "14px 10px",
+    backgroundImage:
+      "radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)",
+    backgroundSize: "18px 18px",
+    backgroundColor: "#0b141a",
   },
   messageRow: {
     display: "flex",
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  messageBubble: {
-    maxWidth: "85%",
-    padding: 12,
-    borderRadius: 14,
-    boxSizing: "border-box",
-  },
-  clienteBubble: {
-    background: "#22c55e",
-    color: "#06230f",
+  bubble: {
+    maxWidth: "82%",
+    padding: "8px 10px",
+    borderRadius: 8,
+    boxShadow: "0 1px 0 rgba(0,0,0,0.25)",
+    wordBreak: "break-word",
+    whiteSpace: "pre-wrap",
+    lineHeight: 1.4,
+    fontSize: 14,
   },
   macBubble: {
-    background: "#1e293b",
-    color: "#fff",
+    background: "#202c33",
+    color: "#e9edef",
+    borderTopLeftRadius: 2,
   },
-  messageLabel: {
-    fontSize: 12,
-    fontWeight: "bold",
-    marginBottom: 6,
-    opacity: 0.8,
+  clientBubble: {
+    background: "#005c4b",
+    color: "#e9edef",
+    borderTopRightRadius: 2,
   },
   messageText: {
-    whiteSpace: "pre-wrap",
-    lineHeight: 1.45,
-    wordBreak: "break-word",
+    margin: 0,
   },
-  inputArea: {
-    padding: 16,
-    borderTop: "1px solid rgba(255,255,255,0.08)",
-    background: "#0b1220",
+  footer: {
+    background: "#202c33",
+    padding: 10,
     display: "flex",
     flexDirection: "column",
-    gap: 12,
+    gap: 8,
+    flexShrink: 0,
+  },
+  inputWrap: {
+    display: "flex",
+    alignItems: "flex-end",
+    gap: 8,
   },
   textarea: {
-    width: "100%",
+    flex: 1,
     resize: "none",
-    borderRadius: 12,
-    border: "1px solid #334155",
-    background: "#111827",
-    color: "#fff",
-    padding: 12,
-    boxSizing: "border-box",
-    fontSize: 15,
+    maxHeight: 120,
+    overflowY: "auto",
+    border: "none",
     outline: "none",
+    borderRadius: 22,
+    background: "#2a3942",
+    color: "#e9edef",
+    padding: "12px 14px",
+    fontSize: 15,
+    lineHeight: 1.35,
+    boxSizing: "border-box",
   },
   sendButton: {
-    alignSelf: "flex-end",
-    background: "#22c55e",
-    color: "#052e16",
+    width: 44,
+    height: 44,
+    borderRadius: "50%",
     border: "none",
-    borderRadius: 10,
-    padding: "10px 18px",
+    background: "#25d366",
+    color: "#0b141a",
+    fontSize: 18,
     fontWeight: "bold",
     cursor: "pointer",
+    flexShrink: 0,
+  },
+  analysisBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    flexWrap: "wrap",
+    color: "#8696a0",
+    fontSize: 12,
+    padding: "0 4px",
   },
 };
