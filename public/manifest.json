@@ -1,0 +1,23 @@
+{
+  "name": "M.A.C. V10 - Motor de Vendas",
+  "short_name": "MAC V10",
+  "description": "Motor de Automação de Comportamento e Vendas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b141a",
+  "theme_color": "#202c33",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/168/168724.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/168/168724.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
