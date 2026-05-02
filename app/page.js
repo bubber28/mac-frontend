@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { enviarMensagemMac } from '../biblioteca/api';
+// CORREÇÃO CAMADA 1: Uso de Alias @ para resolver erro de 'Module not found'
+import { enviarMensagemMac } from '@/biblioteca/api';
 
 export default function Page() {
   const [messages, setMessages] = useState([
@@ -46,7 +47,7 @@ export default function Page() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0b141a', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 0, fontFamily: 'Arial, sans-serif', position: 'fixed', width: '100%' }}>
+    <div style={{ minHeight: '100vh', background: '#0b141a', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 0, fontFamily: 'sans-serif', position: 'fixed', width: '100%' }}>
       <div style={{ width: '100%', maxWidth: '520px', height: '100vh', background: '#111b21', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         
         <header style={{ height: '64px', background: '#202c33', display: 'flex', alignItems: 'center', padding: '0 14px', gap: '12px', borderBottom: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 }}>
