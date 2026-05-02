@@ -4,6 +4,7 @@
   "description": "Motor de Automação de Comportamento e Vendas",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0b141a",
   "theme_color": "#202c33",
   "icons": [
@@ -11,7 +12,7 @@
       "src": "https://diefpxtsreimxpkrkrqf.supabase.co/storage/v1/object/public/ICONEMAC/MAC_V10_ICONE_512-removebg-preview.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
       "src": "https://diefpxtsreimxpkrkrqf.supabase.co/storage/v1/object/public/ICONEMAC/MAC_V10_ICONE_512-removebg-preview.png",
