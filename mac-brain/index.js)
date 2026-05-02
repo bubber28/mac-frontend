@@ -1,0 +1,51 @@
+export default {
+  async fetch(request, env) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        }
+      });
+    }
+
+    if (request.method !== "POST") {
+      return new Response("MAC V10 - Motor Ativo e Online.", {
+        status: 200,
+        headers: { "Access-Control-Allow-Origin": "*" }
+      });
+    }
+
+    try {
+      const { prompt } = await request.json();
+
+      const response = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+        messages: [
+          {
+            role: 'system',
+            content: `Você é o M.A.C. (Motor de Atendimento e Conversão).
+PERSONA: Humano Experiente, Estratégico e Seguro.
+Respostas curtas estilo WhatsApp.
+Proibido: dizer que é IA, usar "Sinto muito" ou "Infelizmente".
+Use "Vou providenciar agora" como protocolo.
+Perfil D: máximo 2 frases. Perfil I/S: 3 frases. Perfil C: 4 frases.`
+          },
+          { role: 'user', content: prompt }
+        ],
+        max_tokens: 300
+      });
+
+      return Response.json(
+        { response: response.response },
+        { headers: { "Access-Control-Allow-Origin": "*" } }
+      );
+
+    } catch (e) {
+      return Response.json(
+        { response: "Vou organizar essa informação e já te retorno." },
+        { status: 500, headers: { "Access-Control-Allow-Origin": "*" } }
+      );
+    }
+  }
+};
