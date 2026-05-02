@@ -12,7 +12,7 @@ export const metadata = {
   // Camada de Compatibilidade Apple (Crucial para o ícone no iPhone)
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent", // Deixa o app fundido com a barra de sinal
+    statusBarStyle: "black-translucent",
     title: "M.A.C V10",
     startupImage: "https://diefpxtsreimxpkrkrqf.supabase.co/storage/v1/object/public/ICONEMAC/MAC_V10_ICONE_512-removebg-preview.png",
   },
@@ -29,18 +29,19 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false, // Impede que o chat dê zoom ao clicar no teclado
+  userScalable: false, // Bloqueia zoom indesejado no teclado mobile
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
       <head>
-        {/* Camada de Segurança de Renderização */}
+        {/* Camada de Segurança de Renderização Standalone */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body className="antialiased select-none">
+      <body className="antialiased select-none bg-[#0b141a]">
         {children}
       </body>
     </html>
