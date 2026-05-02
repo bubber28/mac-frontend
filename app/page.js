@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 // CORREÇÃO CAMADA 1: Uso de Alias @ para resolver erro de 'Module not found'
-import { enviarMensagemMac } from '@/biblioteca/api';
-
+import { enviarMensagemMac } from '../biblioteca/api';
 export default function Page() {
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Olá! Tudo bem? Sou o M.A.C. Como posso te ajudar hoje?' }
