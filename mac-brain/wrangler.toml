@@ -1,6 +1,7 @@
 name = "mac-brain"
 main = "index.js"
 compatibility_date = "2024-01-01"
+account_id = "3ab97cb8f37d14d7b3f6490c24c76800"
 
 [ai]
 binding = "AI"
