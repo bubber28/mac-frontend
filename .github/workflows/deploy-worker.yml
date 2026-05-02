@@ -13,4 +13,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: mac-brain
-          command: deploy --verbose
+          command: deploy
